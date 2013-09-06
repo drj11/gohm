@@ -36,9 +36,9 @@ func main() {
 	defer c.Logout(30 * time.Second)
 
 	// Server greeting
-        for _, thing := range c.Data {
-            fmt.Println("hello:", thing)
-        }
+	for _, thing := range c.Data {
+		fmt.Println("hello:", thing)
+	}
 	c.Data = nil
 
 	// Optionally enable encryption
@@ -62,13 +62,13 @@ func main() {
 
 	// Check INBOX.
 	_, err = c.Select("INBOX", true)
-        if err != nil {
-          panic(err.Error())
-        }
+	if err != nil {
+		panic(err.Error())
+	}
 
 	// Fetch headers
 	set, _ := imap.NewSeqSet("")
-        set.Add("1:*")
+	set.Add("1:*")
 	cmd, _ = c.Fetch(set, "RFC822.HEADER")
 
 	// Process responses while the command is running
