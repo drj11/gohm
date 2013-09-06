@@ -163,6 +163,7 @@ func ensureUIDValidity(mailbox string, uidValidity uint32) error {
 	if err != nil {
 		return err
 	}
+	os.RemoveAll(temp)
 	err = os.MkdirAll(mailbox, 0777)
 	if err != nil {
 		return err
