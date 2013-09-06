@@ -10,6 +10,7 @@ import (
 	"time"
 )
 
+// Derived from the example in the imap documentation.
 //
 // Note: most of error handling code is omitted for brevity
 //
@@ -34,11 +35,11 @@ func main() {
 	// Remember to log out and close the connection when finished
 	defer c.Logout(30 * time.Second)
 
-	// Print server greeting (first response in the unilateral server data queue)
+	// Server greeting
 	fmt.Println("Server says hello:", c.Data[0].Info)
 	c.Data = nil
 
-	// Enable encryption, if supported by the server
+	// Optionally enable encryption
 	if c.Caps["STARTTLS"] {
 		c.StartTLS(nil)
 	}
@@ -51,10 +52,9 @@ func main() {
 		}
 	}
 
-	// List all top-level mailboxes, wait for the command to finish
+	// List all top-level mailboxes.
 	cmd, _ = imap.Wait(c.List("", "%"))
 
-	// Print mailbox information
 	fmt.Println("\nTop-level mailboxes:")
 	for _, rsp = range cmd.Data {
 		fmt.Println("|--", rsp.MailboxInfo())
@@ -62,11 +62,11 @@ func main() {
 
 	// Check for new unilateral server data responses
 	for _, rsp = range c.Data {
-		fmt.Println("Server data:", rsp)
+		fmt.Println("Unilateral:", rsp)
 	}
 	c.Data = nil
 
-	// Open a mailbox (synchronous command - no need for imap.Wait)
+	// Check INBOX.
 	c.Select("INBOX", true)
 	fmt.Print("\nMailbox status:\n", c.Mailbox)
 
@@ -96,7 +96,7 @@ func main() {
 
 		// Process unilateral server data
 		for _, rsp = range c.Data {
-			fmt.Println("Server data:", rsp)
+			fmt.Println("Unilateral:", rsp)
 		}
 		c.Data = nil
 	}
