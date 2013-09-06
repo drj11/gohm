@@ -81,7 +81,7 @@ func main() {
 			info := rsp.MessageInfo()
 			header := imap.AsBytes(info.Attrs["RFC822.HEADER"])
 			if msg, _ := mail.ReadMessage(bytes.NewReader(header)); msg != nil {
-				fmt.Println("|--", info.UID, msg.Header.Get("Subject"))
+				fmt.Println(info.UID, msg.Header.Get("Subject"))
 			}
 		}
 		cmd.Data = nil
