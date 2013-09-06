@@ -62,7 +62,7 @@ func main() {
 	}
 	c.Data = nil
 
-	mailbox := "INBOX"
+	mailbox := "inbox"
 	incorporate(c, mailbox)
 }
 
