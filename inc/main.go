@@ -15,7 +15,6 @@ import (
 // Note: most of error handling code is omitted for brevity
 //
 var (
-	c   *imap.Client
 	cmd *imap.Command
 	rsp *imap.Response
 )
@@ -60,10 +59,18 @@ func main() {
 	}
 	c.Data = nil
 
-	// Check INBOX.
-	_, err = c.Select("INBOX", true)
+	mailbox := "INBOX"
+	incorporate(c, mailbox)
+}
+
+func incorporate(c *imap.Client, mailbox string) {
+	cmd, err := c.Select(mailbox, true)
 	if err != nil {
 		panic(err.Error())
+	}
+
+	for _, response := range cmd.Data {
+		fmt.Println("response:", response)
 	}
 
 	// Fetch headers
