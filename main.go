@@ -36,9 +36,9 @@ func main() {
 	defer c.Logout(30 * time.Second)
 
 	// Server greeting
-        for _, thing := range c.Data {
-            fmt.Println("hello:", thing)
-        }
+	for _, thing := range c.Data {
+		fmt.Println("hello:", thing)
+	}
 	c.Data = nil
 
 	// Optionally enable encryption
