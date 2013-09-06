@@ -10,7 +10,6 @@ import (
 	"net/mail"
 	"os"
 	"path/filepath"
-	"strconv"
 	"time"
 )
 
@@ -82,10 +81,6 @@ func incorporate(c *imap.Client, mailbox string) {
 	}
 	fmt.Println("uidvalidity", uidvalidity)
 
-	err = os.MkdirAll(mailbox, 0777)
-	if err != nil {
-		panic(err.Error())
-	}
 	err = ensureUIDValidity(mailbox, uidvalidity)
 	if err != nil {
 		panic(err.Error())
@@ -136,15 +131,9 @@ func ensureUIDValidity(mailbox string, uidValidity uint32) error {
 	longName := filepath.Join(mailbox, shortName)
 	b, err := ioutil.ReadFile(longName)
 	if err != nil {
-		// Probably "no such file or directory", but even it's
-		// not we declare UIDValidity.
-
-		s := strconv.Itoa(int(uidValidity))
-		err = ioutil.WriteFile(longName, []byte(s), 0666)
-		if err != nil {
-			return err
-		}
-		return nil
+		// Probably "no such file or directory", but even
+		// if it's not we declare UIDValidity.
+		return freshValidMailbox(mailbox, uidValidity)
 	}
 	fmt.Println("ensureUIDValidity", string(b))
 	var cachedValidity uint32
@@ -164,12 +153,14 @@ func ensureUIDValidity(mailbox string, uidValidity uint32) error {
 		return err
 	}
 	os.RemoveAll(temp)
-	err = os.MkdirAll(mailbox, 0777)
-	if err != nil {
-		return err
-	}
-	s := strconv.Itoa(int(uidValidity))
-	err = ioutil.WriteFile(longName, []byte(s), 0666)
+	return freshValidMailbox(mailbox, uidValidity)
+}
+
+func freshValidMailbox(mailbox string, uidValidity uint32) error {
+	longName := filepath.Join(mailbox, ".uidvalidity")
+	_ = os.MkdirAll(mailbox, 0777)
+	s := fmt.Sprint(uidValidity)
+	err := ioutil.WriteFile(longName, []byte(s), 0666)
 	if err != nil {
 		return err
 	}
