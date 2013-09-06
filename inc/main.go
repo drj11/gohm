@@ -69,7 +69,7 @@ func main() {
 	// Fetch headers
 	set, _ := imap.NewSeqSet("")
 	set.Add("1:*")
-	cmd, _ = c.Fetch(set, "RFC822.HEADER")
+	cmd, _ = c.Fetch(set, "RFC822.HEADER", "UID")
 
 	// Process responses while the command is running
 	for cmd.InProgress() {
@@ -78,9 +78,10 @@ func main() {
 
 		// Process command data
 		for _, rsp = range cmd.Data {
-			header := imap.AsBytes(rsp.MessageInfo().Attrs["RFC822.HEADER"])
+			info := rsp.MessageInfo()
+			header := imap.AsBytes(info.Attrs["RFC822.HEADER"])
 			if msg, _ := mail.ReadMessage(bytes.NewReader(header)); msg != nil {
-				fmt.Println("|--", msg.Header.Get("Subject"))
+				fmt.Println("|--", info.UID, msg.Header.Get("Subject"))
 			}
 		}
 		cmd.Data = nil
