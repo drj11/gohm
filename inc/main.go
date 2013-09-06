@@ -6,7 +6,11 @@ import (
 	"crypto/tls"
 	"flag"
 	"fmt"
+	"io/ioutil"
 	"net/mail"
+	"os"
+	"path/filepath"
+	"strconv"
 	"time"
 )
 
@@ -69,8 +73,22 @@ func incorporate(c *imap.Client, mailbox string) {
 		panic(err.Error())
 	}
 
+	var uidvalidity uint32
 	for _, response := range cmd.Data {
 		fmt.Println("response:", response)
+		if len(response.Fields) >= 2 && response.Fields[0] == "UIDVALIDITY" {
+			uidvalidity = response.Fields[1].(uint32)
+		}
+	}
+	fmt.Println("uidvalidity", uidvalidity)
+
+	err = os.MkdirAll(mailbox, 0777)
+	if err != nil {
+		panic(err.Error())
+	}
+	err = ensureUIDValidity(mailbox, uidvalidity)
+	if err != nil {
+		panic(err.Error())
 	}
 
 	// Fetch headers
@@ -108,4 +126,51 @@ func incorporate(c *imap.Client, mailbox string) {
 			fmt.Println("Fetch error:", rsp.Info)
 		}
 	}
+}
+
+// Checks the uidVality (obtained from server) against the stored
+// version (on the filesystem in the file ".uidvalidity"). If
+// the stored validity does not match, the directory is emptied.
+func ensureUIDValidity(mailbox string, uidValidity uint32) error {
+	shortName := ".uidvalidity"
+	longName := filepath.Join(mailbox, shortName)
+	b, err := ioutil.ReadFile(longName)
+	if err != nil {
+		// Probably "no such file or directory", but even it's
+		// not we declare UIDValidity.
+
+		s := strconv.Itoa(int(uidValidity))
+		err = ioutil.WriteFile(longName, []byte(s), 0666)
+		if err != nil {
+			return err
+		}
+		return nil
+	}
+	fmt.Println("ensureUIDValidity", string(b))
+	cachedValidity64, err := strconv.ParseUint(string(b), 10, 32)
+	cachedValidity := uint32(cachedValidity64)
+	if err != nil {
+		panic(err.Error())
+	}
+	if cachedValidity == uidValidity {
+		return nil
+	}
+	temp, err := ioutil.TempDir(".", mailbox)
+	if err != nil {
+		return err
+	}
+	err = os.Rename(mailbox, temp)
+	if err != nil {
+		return err
+	}
+	err = os.MkdirAll(mailbox, 0777)
+	if err != nil {
+		return err
+	}
+	s := strconv.Itoa(int(uidValidity))
+	err = ioutil.WriteFile(longName, []byte(s), 0666)
+	if err != nil {
+		return err
+	}
+	return nil
 }
