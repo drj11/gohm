@@ -147,8 +147,8 @@ func ensureUIDValidity(mailbox string, uidValidity uint32) error {
 		return nil
 	}
 	fmt.Println("ensureUIDValidity", string(b))
-	cachedValidity64, err := strconv.ParseUint(string(b), 10, 32)
-	cachedValidity := uint32(cachedValidity64)
+	var cachedValidity uint32
+	fmt.Sscan(string(b), &cachedValidity)
 	if err != nil {
 		panic(err.Error())
 	}
