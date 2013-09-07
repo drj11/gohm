@@ -42,3 +42,7 @@ func CurrentFolderDir() (string, error) {
     return filepath.Join(PATH, folder), nil
 }
 
+// The current message number.
+func CurrentMessage() string {
+  return "1"
+}
