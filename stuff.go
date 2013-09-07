@@ -7,16 +7,18 @@ import (
 	"path/filepath"
 )
 
-func Setup() (string, error) {
-	GOHM_PATH := os.Getenv("GOHM_PATH")
+var (
+    PATH = os.Getenv("GOHM_PATH")
+)
 
-	if GOHM_PATH == "" {
+func Setup() (string, error) {
+	if PATH == "" {
 		return "", errors.New("GOHM_PATH must be set")
 	}
-	_ = os.MkdirAll(GOHM_PATH, 0777)
+	_ = os.MkdirAll(PATH, 0777)
 
 	// Logging
-	l := filepath.Join(GOHM_PATH, "inc.log")
+	l := filepath.Join(PATH, "inc.log")
 	logf, err := os.OpenFile(l, os.O_WRONLY|os.O_APPEND|os.O_CREATE, 0666)
 	if err != nil {
 		log.Println(err.Error())
@@ -24,5 +26,9 @@ func Setup() (string, error) {
 	} else {
 		log.SetOutput(logf)
 	}
-	return GOHM_PATH, nil
+	return PATH, nil
+}
+
+func CurrentFolder() (string, error) {
+    return "inbox", nil
 }
