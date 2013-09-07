@@ -34,7 +34,7 @@ func mainExitStatus() int {
 		var i int
 		n, _ := fmt.Sscan(f.Name(), &i)
 		if n == 1 {
-			fmt.Println(f.Name())
+			fmt.Printf("%4s\n", f.Name())
 		}
 	}
 	return 0
