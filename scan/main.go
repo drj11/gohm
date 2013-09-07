@@ -32,14 +32,16 @@ func mainExitStatus() int {
 	}
 	current := gohm.CurrentMessage()
 	for _, f := range entries {
-		var i int
-		n, _ := fmt.Sscan(f.Name(), &i)
-		var curr string
+		// Flags for current message and replied.
+		// :todo:(drj) implement.
+		var curr, repl string
+		var i_ int
+		n, _ := fmt.Sscan(f.Name(), &i_)
 		if current == f.Name() {
 			curr = "+"
 		}
 		if n == 1 {
-			fmt.Printf("%4s%1s\n", f.Name(), curr)
+			fmt.Printf("%4s%1s%1s\n", f.Name(), curr, repl)
 		}
 	}
 	return 0
