@@ -30,11 +30,16 @@ func mainExitStatus() int {
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
 	}
+	current := gohm.CurrentMessage()
 	for _, f := range entries {
 		var i int
 		n, _ := fmt.Sscan(f.Name(), &i)
+		var curr string
+		if current == f.Name() {
+			curr = "+"
+		}
 		if n == 1 {
-			fmt.Printf("%4s\n", f.Name())
+			fmt.Printf("%4s%1s\n", f.Name(), curr)
 		}
 	}
 	return 0
