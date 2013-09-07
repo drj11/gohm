@@ -1,13 +1,11 @@
 package main
 
 import (
-	"bytes"
 	"code.google.com/p/go-imap/go1/imap"
 	"crypto/tls"
 	"flag"
 	"fmt"
 	"io/ioutil"
-	"net/mail"
 	"os"
 	"path/filepath"
 	"time"
@@ -108,14 +106,6 @@ func incorporate(c *imap.Client, mailbox string) {
 			if err != nil {
 				fmt.Fprint(os.Stderr, err.Error())
 			}
-			_ = bytes.NewReader  // DELETEME
-			_ = mail.ReadMessage // DELETEME
-			/*
-				header := imap.AsBytes(info.Attrs["RFC822.HEADER"])
-				if msg, _ := mail.ReadMessage(bytes.NewReader(header)); msg != nil {
-					fmt.Println(info.UID, msg.Header.Get("Subject"))
-				}
-			*/
 		}
 		cmd.Data = nil
 
