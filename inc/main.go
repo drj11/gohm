@@ -5,6 +5,7 @@ import (
 	"crypto/tls"
 	"flag"
 	"fmt"
+	"github.com/drj11/gohm"
 	"io/ioutil"
 	"log"
 	"os"
@@ -18,7 +19,7 @@ import (
 //
 
 var (
-	GOHM_PATH = os.Getenv("GOHM_PATH")
+	GOHM_PATH, setupErr = gohm.Setup()
 )
 
 func main() {
@@ -36,20 +37,9 @@ func mainExitStatus() int {
 	mailbox := flag.String("mailbox", "inbox", "IMAP mailbox to incorporate")
 	flag.Parse()
 
-	if GOHM_PATH == "" {
-		fmt.Fprintln(os.Stderr, "GOHM_PATH must be set.")
+	if setupErr != nil {
+		fmt.Fprintln(os.Stderr, setupErr.Error())
 		return 4
-	}
-	_ = os.MkdirAll(GOHM_PATH, 0777)
-
-	// Logging
-	l := filepath.Join(GOHM_PATH, "inc.log")
-	logf, err := os.OpenFile(l, os.O_WRONLY|os.O_APPEND|os.O_CREATE, 0666)
-	if err != nil {
-		log.Println(err.Error())
-		log.Println("Logging to stderr instead.")
-	} else {
-		log.SetOutput(logf)
 	}
 
 	// Connect to the server
