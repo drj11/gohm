@@ -17,7 +17,18 @@ import (
 // Note: most of error handling code is omitted for brevity
 //
 
+var (
+	GOHM_PATH = os.Getenv("GOHM_PATH")
+)
+
 func main() {
+	exitStatus := mainExitStatus()
+	if exitStatus != 0 {
+		os.Exit(exitStatus)
+	}
+}
+
+func mainExitStatus() int {
 	// Options
 	server := flag.String("server", "imap.gmail.com", "Server to check")
 	user := flag.String("user", "gohm2013@gmail.com", "IMAP user")
@@ -43,7 +54,12 @@ func main() {
 	}
 	defer c.Logout(30 * time.Second)
 
+	if GOHM_PATH == "" {
+		fmt.Fprintln(os.Stderr, "GOHM_PATH must be set.")
+		return 4
+	}
 	incorporate(c, *mailbox)
+	return 0
 }
 
 func authenticatedClient(server, user, password string) (*imap.Client, error) {
@@ -119,7 +135,7 @@ func incorporate(c *imap.Client, mailbox string) {
 			info := rsp.MessageInfo()
 			uid := fmt.Sprint(info.UID)
 			fmt.Print(uid, " ")
-			fn := filepath.Join(mailbox, uid)
+			fn := filepath.Join(GOHM_PATH, mailbox, uid)
 			err := ioutil.WriteFile(fn, imap.AsBytes(info.Attrs["RFC822"]), 0666)
 			if err != nil {
 				fmt.Fprintln(os.Stderr, err.Error())
@@ -152,7 +168,7 @@ func incorporate(c *imap.Client, mailbox string) {
 // the stored validity does not match, the directory is emptied.
 func ensureUIDValidity(mailbox string, uidValidity uint32) error {
 	shortName := ".uidvalidity"
-	longName := filepath.Join(mailbox, shortName)
+	longName := filepath.Join(GOHM_PATH, mailbox, shortName)
 	b, err := ioutil.ReadFile(longName)
 	if err != nil {
 		// Probably "no such file or directory", but even
@@ -180,10 +196,11 @@ func ensureUIDValidity(mailbox string, uidValidity uint32) error {
 }
 
 func freshValidMailbox(mailbox string, uidValidity uint32) error {
-	longName := filepath.Join(mailbox, ".uidvalidity")
-	_ = os.MkdirAll(mailbox, 0777)
+	dir := filepath.Join(GOHM_PATH, mailbox)
+	v := filepath.Join(dir, ".uidvalidity")
+	_ = os.MkdirAll(dir, 0777)
 	s := fmt.Sprint(uidValidity)
-	err := ioutil.WriteFile(longName, []byte(s), 0666)
+	err := ioutil.WriteFile(v, []byte(s), 0666)
 	if err != nil {
 		return err
 	}
