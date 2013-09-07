@@ -4,7 +4,9 @@ import (
 	"fmt"
 	"github.com/drj11/gohm"
 	"io/ioutil"
+	"net/mail"
 	"os"
+	"path/filepath"
 )
 
 var (
@@ -41,7 +43,18 @@ func mainExitStatus() int {
 			curr = "+"
 		}
 		if n == 1 {
-			fmt.Printf("%4s%1s%1s\n", f.Name(), curr, repl)
+			fullName := filepath.Join(dir, f.Name())
+			fp, err := os.Open(fullName)
+			if err != nil {
+				panic(err.Error())
+			}
+			defer fp.Close()
+			msg, _ := mail.ReadMessage(fp)
+			var subj = "??"
+			if msg != nil {
+				subj = msg.Header.Get("Subject")
+			}
+			fmt.Printf("%4s%1s%1sMM-DD  %-40.40s\n", f.Name(), curr, repl, subj)
 		}
 	}
 	return 0
