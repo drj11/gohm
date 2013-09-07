@@ -91,7 +91,7 @@ func incorporate(c *imap.Client, mailbox string) {
 	// Fetch headers
 	set, _ := imap.NewSeqSet("")
 	set.Add("1:*")
-	cmd, _ = c.Fetch(set, "RFC822.HEADER", "UID")
+	cmd, _ = c.Fetch(set, "RFC822", "INTERNALDATE", "UID")
 
 	// Process responses while the command is running
 	for cmd.InProgress() {
@@ -101,10 +101,21 @@ func incorporate(c *imap.Client, mailbox string) {
 		// Process command data
 		for _, rsp = range cmd.Data {
 			info := rsp.MessageInfo()
-			header := imap.AsBytes(info.Attrs["RFC822.HEADER"])
-			if msg, _ := mail.ReadMessage(bytes.NewReader(header)); msg != nil {
-				fmt.Println(info.UID, msg.Header.Get("Subject"))
+			uid := fmt.Sprint(info.UID)
+			fmt.Print(uid, " ")
+			fn := filepath.Join(mailbox, uid)
+			err := ioutil.WriteFile(fn, imap.AsBytes(info.Attrs["RFC822"]), 0666)
+			if err != nil {
+				fmt.Fprint(os.Stderr, err.Error())
 			}
+			_ = bytes.NewReader  // DELETEME
+			_ = mail.ReadMessage // DELETEME
+			/*
+				header := imap.AsBytes(info.Attrs["RFC822.HEADER"])
+				if msg, _ := mail.ReadMessage(bytes.NewReader(header)); msg != nil {
+					fmt.Println(info.UID, msg.Header.Get("Subject"))
+				}
+			*/
 		}
 		cmd.Data = nil
 
@@ -114,6 +125,7 @@ func incorporate(c *imap.Client, mailbox string) {
 		}
 		c.Data = nil
 	}
+	fmt.Println()
 
 	// Check command completion status
 	if rsp, err := cmd.Result(imap.OK); err != nil {
