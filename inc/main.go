@@ -79,7 +79,6 @@ func incorporate(c *imap.Client, mailbox string) {
 			uidValidity = response.Fields[1].(uint32)
 		}
 	}
-	fmt.Println("uidvalidity", uidValidity)
 
 	err = ensureUIDValidity(mailbox, uidValidity)
 	if err != nil {
@@ -139,7 +138,6 @@ func ensureUIDValidity(mailbox string, uidValidity uint32) error {
 		// if it's some other error we declare UIDValidity.
 		return freshValidMailbox(mailbox, uidValidity)
 	}
-	fmt.Println("ensureUIDValidity", string(b))
 	var cachedValidity uint32
 	fmt.Sscan(string(b), &cachedValidity)
 	if err != nil {
