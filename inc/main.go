@@ -63,7 +63,7 @@ func main() {
 		}
 		// Generally, there don't seem to be any responses.
 		for _, response := range cmd.Data {
-			fmt.Println("Login response:", response)
+			log.Println("Login response:", response)
 		}
 	}
 
@@ -86,7 +86,7 @@ func incorporate(c *imap.Client, mailbox string) {
 	// if not sent by server (RFC 3501 6.3.1).
 	var uidValidity uint32
 	for _, response := range cmd.Data {
-		fmt.Println("response:", response)
+		log.Println("Select response:", response)
 		if len(response.Fields) >= 2 && response.Fields[0] == "UIDVALIDITY" {
 			uidValidity = response.Fields[1].(uint32)
 		}
