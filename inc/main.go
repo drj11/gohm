@@ -15,9 +15,6 @@ import (
 //
 // Note: most of error handling code is omitted for brevity
 //
-var (
-	rsp *imap.Response
-)
 
 func main() {
 	// Options
@@ -59,7 +56,7 @@ func main() {
 	}
 
 	// Check for new unilateral server data responses
-	for _, rsp = range c.Data {
+	for _, rsp := range c.Data {
 		fmt.Println("Unilateral:", rsp)
 	}
 	c.Data = nil
@@ -100,7 +97,7 @@ func incorporate(c *imap.Client, mailbox string) {
 		c.Recv(-1)
 
 		// Process command data
-		for _, rsp = range cmd.Data {
+		for _, rsp := range cmd.Data {
 			info := rsp.MessageInfo()
 			uid := fmt.Sprint(info.UID)
 			fmt.Print(uid, " ")
@@ -115,7 +112,7 @@ func incorporate(c *imap.Client, mailbox string) {
 		cmd.Data = nil
 
 		// Process unilateral server data
-		for _, rsp = range c.Data {
+		for _, rsp := range c.Data {
 			fmt.Println("Unilateral:", rsp)
 		}
 		c.Data = nil
