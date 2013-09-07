@@ -16,7 +16,6 @@ import (
 // Note: most of error handling code is omitted for brevity
 //
 var (
-	cmd *imap.Command
 	rsp *imap.Response
 )
 
@@ -49,9 +48,13 @@ func main() {
 
 	// Authenticate
 	if c.State() == imap.Login {
-		cmd, err = c.Login(*user, *password)
+		cmd, err := c.Login(*user, *password)
 		if err != nil {
 			panic(err.Error())
+		}
+                // Generally, there don't seem to be any responses.
+		for _, response := range cmd.Data {
+			fmt.Println("Login response:", response)
 		}
 	}
 
