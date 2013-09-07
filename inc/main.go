@@ -52,7 +52,7 @@ func main() {
 		if err != nil {
 			panic(err.Error())
 		}
-                // Generally, there don't seem to be any responses.
+		// Generally, there don't seem to be any responses.
 		for _, response := range cmd.Data {
 			fmt.Println("Login response:", response)
 		}
