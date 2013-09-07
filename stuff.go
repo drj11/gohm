@@ -32,3 +32,13 @@ func Setup() (string, error) {
 func CurrentFolder() (string, error) {
     return "inbox", nil
 }
+
+// The directory on the filesystem for the current folder.
+func CurrentFolderDir() (string, error) {
+    folder, err := CurrentFolder()
+    if err != nil {
+        return "", err
+    }
+    return filepath.Join(PATH, folder), nil
+}
+
