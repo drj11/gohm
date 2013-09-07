@@ -6,6 +6,7 @@ import (
 	"flag"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"os"
 	"path/filepath"
 	"time"
@@ -24,7 +25,17 @@ func main() {
 	mailbox := flag.String("mailbox", "inbox", "IMAP mailbox to incorporate")
 	flag.Parse()
 
+	// Logging
+	logf, err := os.OpenFile("inc.log", os.O_WRONLY|os.O_APPEND|os.O_CREATE, 0666)
+	if err != nil {
+		log.Println(err.Error())
+		log.Println("Logging to stderr instead.")
+	} else {
+		log.SetOutput(logf)
+	}
+
 	// Connect to the server
+	log.Println("inc -server", *server, "-user", *user, "-mailbox", *mailbox)
 	c, err := imap.DialTLS(*server, &tls.Config{})
 	if err != nil {
 		panic(err.Error())
