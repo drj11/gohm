@@ -20,12 +20,13 @@ var (
 	rsp *imap.Response
 )
 
-var server = flag.String("server", "imap.gmail.com", "Server to check")
-var user = flag.String("user", "gohm2013@gmail.com", "IMAP user")
-var password = flag.String("password", "", "Password")
-
 func main() {
+	// Options
+	server := flag.String("server", "imap.gmail.com", "Server to check")
+	user := flag.String("user", "gohm2013@gmail.com", "IMAP user")
+	password := flag.String("password", "", "Password")
 	flag.Parse()
+
 	// Connect to the server
 	c, err := imap.DialTLS(*server, &tls.Config{})
 	if err != nil {
