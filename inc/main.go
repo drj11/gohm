@@ -36,13 +36,21 @@ func main() {
 
 	// Connect to the server
 	log.Println("inc -server", *server, "-user", *user, "-mailbox", *mailbox)
-	c, err := imap.DialTLS(*server, &tls.Config{})
+
+	c, err := authenticatedClient(*server, *user, *password)
 	if err != nil {
 		panic(err.Error())
 	}
-
-	// Remember to log out and close the connection when finished
 	defer c.Logout(30 * time.Second)
+
+	incorporate(c, *mailbox)
+}
+
+func authenticatedClient(server, user, password string) (*imap.Client, error) {
+	c, err := imap.DialTLS(server, &tls.Config{})
+	if err != nil {
+		return nil, err
+	}
 
 	// Server greeting
 	for _, response := range c.Data {
@@ -57,7 +65,7 @@ func main() {
 
 	// Authenticate
 	if c.State() == imap.Login {
-		cmd, err := c.Login(*user, *password)
+		cmd, err := c.Login(user, password)
 		if err != nil {
 			panic(err.Error())
 		}
@@ -72,8 +80,7 @@ func main() {
 		log.Println("unilateral:", rsp)
 	}
 	c.Data = nil
-
-	incorporate(c, *mailbox)
+	return c, nil
 }
 
 func incorporate(c *imap.Client, mailbox string) {
