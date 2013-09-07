@@ -122,7 +122,7 @@ func incorporate(c *imap.Client, mailbox string) {
 			fn := filepath.Join(mailbox, uid)
 			err := ioutil.WriteFile(fn, imap.AsBytes(info.Attrs["RFC822"]), 0666)
 			if err != nil {
-				fmt.Fprint(os.Stderr, err.Error())
+				fmt.Fprintln(os.Stderr, err.Error())
 			} else {
 				_ = os.Chtimes(fn, info.InternalDate, info.InternalDate)
 			}
