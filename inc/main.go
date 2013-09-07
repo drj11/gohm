@@ -36,8 +36,15 @@ func mainExitStatus() int {
 	mailbox := flag.String("mailbox", "inbox", "IMAP mailbox to incorporate")
 	flag.Parse()
 
+	if GOHM_PATH == "" {
+		fmt.Fprintln(os.Stderr, "GOHM_PATH must be set.")
+		return 4
+	}
+	_ = os.MkdirAll(GOHM_PATH, 0777)
+
 	// Logging
-	logf, err := os.OpenFile("inc.log", os.O_WRONLY|os.O_APPEND|os.O_CREATE, 0666)
+	l := filepath.Join(GOHM_PATH, "inc.log")
+	logf, err := os.OpenFile(l, os.O_WRONLY|os.O_APPEND|os.O_CREATE, 0666)
 	if err != nil {
 		log.Println(err.Error())
 		log.Println("Logging to stderr instead.")
@@ -54,10 +61,6 @@ func mainExitStatus() int {
 	}
 	defer c.Logout(30 * time.Second)
 
-	if GOHM_PATH == "" {
-		fmt.Fprintln(os.Stderr, "GOHM_PATH must be set.")
-		return 4
-	}
 	incorporate(c, *mailbox)
 	return 0
 }
