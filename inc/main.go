@@ -72,16 +72,18 @@ func incorporate(c *imap.Client, mailbox string) {
 		panic(err.Error())
 	}
 
-	var uidvalidity uint32
+	// Collect the UIDVALIDITY response. Protocol error
+	// if not sent by server (RFC 3501 6.3.1).
+	var uidValidity uint32
 	for _, response := range cmd.Data {
 		fmt.Println("response:", response)
 		if len(response.Fields) >= 2 && response.Fields[0] == "UIDVALIDITY" {
-			uidvalidity = response.Fields[1].(uint32)
+			uidValidity = response.Fields[1].(uint32)
 		}
 	}
-	fmt.Println("uidvalidity", uidvalidity)
+	fmt.Println("uidvalidity", uidValidity)
 
-	err = ensureUIDValidity(mailbox, uidvalidity)
+	err = ensureUIDValidity(mailbox, uidValidity)
 	if err != nil {
 		panic(err.Error())
 	}
@@ -132,7 +134,7 @@ func ensureUIDValidity(mailbox string, uidValidity uint32) error {
 	b, err := ioutil.ReadFile(longName)
 	if err != nil {
 		// Probably "no such file or directory", but even
-		// if it's not we declare UIDValidity.
+		// if it's some other error we declare UIDValidity.
 		return freshValidMailbox(mailbox, uidValidity)
 	}
 	fmt.Println("ensureUIDValidity", string(b))
