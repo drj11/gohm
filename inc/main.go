@@ -104,6 +104,8 @@ func incorporate(c *imap.Client, mailbox string) {
 			err := ioutil.WriteFile(fn, imap.AsBytes(info.Attrs["RFC822"]), 0666)
 			if err != nil {
 				fmt.Fprint(os.Stderr, err.Error())
+			} else {
+				_ = os.Chtimes(fn, info.InternalDate, info.InternalDate)
 			}
 		}
 		cmd.Data = nil
