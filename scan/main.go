@@ -3,16 +3,39 @@ package main
 import (
 	"fmt"
 	"github.com/drj11/gohm"
+	"io/ioutil"
 	"os"
 )
 
 var (
-	GOHM_PATH, setupErr = gohm.Setup()
+	_, setupErr = gohm.Setup()
 )
 
 func main() {
+	exitStatus := mainExitStatus()
+	if exitStatus != 0 {
+		os.Exit(exitStatus)
+	}
+}
+func mainExitStatus() int {
 	if setupErr != nil {
 		fmt.Fprintln(os.Stderr, setupErr.Error())
-		os.Exit(4)
+		return 4
 	}
+	dir, err := gohm.CurrentFolderDir()
+	if err != nil {
+		panic(err.Error())
+	}
+	entries, err := ioutil.ReadDir(dir)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err.Error())
+	}
+	for _, f := range entries {
+		var i int
+		n, _ := fmt.Sscan(f.Name(), &i)
+		if n == 1 {
+			fmt.Println(f.Name())
+		}
+	}
+	return 0
 }
