@@ -1,10 +1,10 @@
 package gohm
 
 import (
-  "errors"
-  "path/filepath"
-  "log"
-  "os"
+	"errors"
+	"log"
+	"os"
+	"path/filepath"
 )
 
 func Setup() (string, error) {
@@ -24,5 +24,5 @@ func Setup() (string, error) {
 	} else {
 		log.SetOutput(logf)
 	}
-        return GOHM_PATH, nil
+	return GOHM_PATH, nil
 }
