@@ -21,6 +21,7 @@ func main() {
 	server := flag.String("server", "imap.gmail.com", "Server to check")
 	user := flag.String("user", "gohm2013@gmail.com", "IMAP user")
 	password := flag.String("password", "", "Password")
+	mailbox := flag.String("mailbox", "inbox", "IMAP mailbox to incorporate")
 	flag.Parse()
 
 	// Connect to the server
@@ -61,8 +62,7 @@ func main() {
 	}
 	c.Data = nil
 
-	mailbox := "inbox"
-	incorporate(c, mailbox)
+	incorporate(c, *mailbox)
 }
 
 func incorporate(c *imap.Client, mailbox string) {
