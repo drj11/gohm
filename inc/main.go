@@ -45,8 +45,8 @@ func main() {
 	defer c.Logout(30 * time.Second)
 
 	// Server greeting
-	for _, thing := range c.Data {
-		fmt.Println("hello:", thing)
+	for _, response := range c.Data {
+		log.Println("unilateral:", response)
 	}
 	c.Data = nil
 
@@ -67,9 +67,9 @@ func main() {
 		}
 	}
 
-	// Check for new unilateral server data responses
+	// Check for new unilateral server data responses.
 	for _, rsp := range c.Data {
-		fmt.Println("Unilateral:", rsp)
+		log.Println("unilateral:", rsp)
 	}
 	c.Data = nil
 
@@ -124,7 +124,7 @@ func incorporate(c *imap.Client, mailbox string) {
 
 		// Process unilateral server data
 		for _, rsp := range c.Data {
-			fmt.Println("Unilateral:", rsp)
+			log.Println("unilateral:", rsp)
 		}
 		c.Data = nil
 	}
