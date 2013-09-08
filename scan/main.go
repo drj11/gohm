@@ -52,14 +52,21 @@ func mainExitStatus() int {
 			msg, _ := mail.ReadMessage(fp)
 			var subj = "??"
 			var date = "MM-DD"
+			var from = "From?"
 			if msg != nil {
 				subj = msg.Header.Get("Subject")
 				t, err := msg.Header.Date()
 				if err == nil {
 					date = t.Format("01-02")
 				}
+				froms, err := msg.Header.AddressList("From")
+				if froms != nil {
+					from = froms[0].Name
+				}
 			}
-			fmt.Printf("%4s%1s%1s%s  %-40.40s\n", f.Name(), curr, repl, date, subj)
+			// Format taken from example on
+			// http://rand-mh.sourceforge.net/book/mh/faswsprs.html
+			fmt.Printf("%4s%1s%1s%s %-17.17s  %-40.40s\n", f.Name(), curr, repl, date, from, subj)
 		}
 	}
 	return 0
