@@ -97,6 +97,7 @@ func incorporate(c *imap.Client, mailbox string) {
 	if err != nil {
 		panic(err.Error())
 	}
+	// :todo:(drj) Make mailbox the current folder.
 
 	// Collect the UIDVALIDITY response. Protocol error
 	// if not sent by server (RFC 3501 6.3.1).
@@ -113,9 +114,55 @@ func incorporate(c *imap.Client, mailbox string) {
 		panic(err.Error())
 	}
 
-	// Fetch headers
-	set, _ := imap.NewSeqSet("")
-	set.Add("1:*")
+	// Make list of UIDs already retrieved.
+	got, _ := imap.NewSeqSet("")
+	dir, err := gohm.CurrentFolderDir()
+	if err != nil {
+		panic(err.Error())
+	}
+	entries, _ := ioutil.ReadDir(dir)
+	for _, f := range entries {
+		var i_ int
+		n, _ := fmt.Sscan(f.Name(), &i_)
+		if n < 1 {
+			continue
+		}
+		got.Add(f.Name())
+	}
+	log.Println("got", got)
+
+	notgot, _ := imap.NewSeqSet("")
+	// Fetch list of UIDs on server.
+	all, _ := imap.NewSeqSet("")
+	all.Add("1:*")
+	cmd, _ = c.Fetch(all, "UID")
+	for cmd.InProgress() {
+		// Wait for the next response (no timeout)
+		c.Recv(-1)
+
+		// Process command data
+		for _, rsp := range cmd.Data {
+			info := rsp.MessageInfo()
+			if got.Contains(info.UID) {
+				continue
+			}
+			notgot.AddNum(info.UID)
+		}
+		cmd.Data = nil
+
+		// Process unilateral server data
+		for _, rsp := range c.Data {
+			log.Println("unilateral:", rsp)
+		}
+		c.Data = nil
+	}
+	log.Println("notgot", notgot)
+
+	set := notgot
+	if set.Empty() {
+		return
+	}
+	// Fetch messages
 	cmd, _ = c.Fetch(set, "RFC822", "INTERNALDATE", "UID")
 
 	// Process responses while the command is running
