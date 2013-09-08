@@ -2,6 +2,7 @@ package gohm
 
 import (
 	"errors"
+	"fmt"
 	"log"
 	"os"
 	"path/filepath"
@@ -43,6 +44,21 @@ func CurrentFolderDir() (string, error) {
 }
 
 // The current message number.
-func CurrentMessage() string {
-	return "1"
+func CurrentMessage() (current string) {
+	current = "1"
+	dir, err := CurrentFolderDir()
+	if err != nil {
+		return
+	}
+	file, err := os.Open(filepath.Join(dir, ".cur"))
+	if err != nil {
+		return
+	}
+	defer file.Close()
+	var cur int
+	_, err = fmt.Fscan(file, &cur)
+	if err != nil {
+		return
+	}
+	return fmt.Sprint(cur)
 }
