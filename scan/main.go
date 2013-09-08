@@ -51,10 +51,15 @@ func mainExitStatus() int {
 			defer fp.Close()
 			msg, _ := mail.ReadMessage(fp)
 			var subj = "??"
+			var date = "MM-DD"
 			if msg != nil {
 				subj = msg.Header.Get("Subject")
+				t, err := msg.Header.Date()
+				if err == nil {
+					date = t.Format("01-02")
+				}
 			}
-			fmt.Printf("%4s%1s%1sMM-DD  %-40.40s\n", f.Name(), curr, repl, subj)
+			fmt.Printf("%4s%1s%1s%s  %-40.40s\n", f.Name(), curr, repl, date, subj)
 		}
 	}
 	return 0
