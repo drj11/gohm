@@ -8,7 +8,7 @@ import (
 )
 
 var (
-    PATH = os.Getenv("GOHM_PATH")
+	PATH = os.Getenv("GOHM_PATH")
 )
 
 func Setup() (string, error) {
@@ -30,19 +30,19 @@ func Setup() (string, error) {
 }
 
 func CurrentFolder() (string, error) {
-    return "inbox", nil
+	return "inbox", nil
 }
 
 // The directory on the filesystem for the current folder.
 func CurrentFolderDir() (string, error) {
-    folder, err := CurrentFolder()
-    if err != nil {
-        return "", err
-    }
-    return filepath.Join(PATH, folder), nil
+	folder, err := CurrentFolder()
+	if err != nil {
+		return "", err
+	}
+	return filepath.Join(PATH, folder), nil
 }
 
 // The current message number.
 func CurrentMessage() string {
-  return "1"
+	return "1"
 }
