@@ -34,6 +34,11 @@ func CurrentFolder() (string, error) {
 	return "inbox", nil
 }
 
+// The directory on the filesystem for the specified folder.
+func FolderDir(folder string) (string) {
+	return filepath.Join(PATH, folder)
+}
+
 // The directory on the filesystem for the current folder.
 func CurrentFolderDir() (string, error) {
 	folder, err := CurrentFolder()

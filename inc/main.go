@@ -116,10 +116,7 @@ func incorporate(c *imap.Client, mailbox string) {
 
 	// Make list of UIDs already retrieved.
 	got, _ := imap.NewSeqSet("")
-	dir, err := gohm.CurrentFolderDir()
-	if err != nil {
-		panic(err.Error())
-	}
+	dir := gohm.FolderDir(mailbox)
 	entries, _ := ioutil.ReadDir(dir)
 	for _, f := range entries {
 		var i_ int
@@ -158,12 +155,15 @@ func incorporate(c *imap.Client, mailbox string) {
 	}
 	log.Println("notgot", notgot)
 
-	set := notgot
+	fetch(c, notgot, mailbox)
+}
+
+func fetch(c *imap.Client, set *imap.SeqSet, mailbox string) {
 	if set.Empty() {
 		return
 	}
 	// Fetch messages
-	cmd, _ = c.Fetch(set, "RFC822", "INTERNALDATE", "UID")
+	cmd, _ := c.Fetch(set, "RFC822", "INTERNALDATE", "UID")
 
 	// Process responses while the command is running
 	for cmd.InProgress() {
