@@ -19,7 +19,7 @@ func Setup() (string, error) {
 	_ = os.MkdirAll(PATH, 0777)
 
 	// Logging
-	l := filepath.Join(PATH, "inc.log")
+	l := filepath.Join(PATH, "gohm.log")
 	logf, err := os.OpenFile(l, os.O_WRONLY|os.O_APPEND|os.O_CREATE, 0666)
 	if err != nil {
 		log.Println(err.Error())
