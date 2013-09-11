@@ -3,6 +3,7 @@ package gohm
 import (
 	"errors"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
@@ -80,4 +81,18 @@ func SetCurrentMessage(c int) error {
 		fmt.Fprint(fp, c)
 	}
 	return err
+}
+
+func ShowCurrentMessage() {
+	dir, err := CurrentFolderDir()
+	if err != nil {
+		panic(err.Error())
+	}
+	current := CurrentMessage()
+	fullName := filepath.Join(dir, current)
+	content, err := ioutil.ReadFile(fullName)
+	if err != nil {
+		panic(err.Error())
+	}
+	os.Stdout.Write(content)
 }

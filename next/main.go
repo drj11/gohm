@@ -29,7 +29,7 @@ func mainExitStatus() int {
 		fmt.Fprintln(os.Stderr, err.Error())
 		return 2
 	}
-	showCurrentMessage()
+	gohm.ShowCurrentMessage()
 	return 0
 }
 
@@ -68,18 +68,4 @@ func next() error {
 		}
 	}
 	return errors.New("No next message")
-}
-
-func showCurrentMessage() {
-	dir, err := gohm.CurrentFolderDir()
-	if err != nil {
-		panic(err.Error())
-	}
-	current := gohm.CurrentMessage()
-	fullName := filepath.Join(dir, current)
-	content, err := ioutil.ReadFile(fullName)
-	if err != nil {
-		panic(err.Error())
-	}
-	os.Stdout.Write(content)
 }
