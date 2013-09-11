@@ -67,3 +67,17 @@ func CurrentMessage() (current string) {
 	}
 	return fmt.Sprint(cur)
 }
+
+func SetCurrentMessage(c int) error {
+	dir, err := CurrentFolderDir()
+	if err != nil {
+		return err
+	}
+	fp, err := os.OpenFile(filepath.Join(dir, ".cur"),
+		os.O_WRONLY|os.O_CREATE, 0666)
+	if fp != nil {
+		defer fp.Close()
+		fmt.Fprint(fp, c)
+	}
+	return err
+}
