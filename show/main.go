@@ -23,8 +23,8 @@ func mainExitStatus() int {
 		fmt.Fprintln(os.Stderr, setupErr.Error())
 		return 4
 	}
-        showCurrentMessage()
-        return 0
+	showCurrentMessage()
+	return 0
 }
 
 func showCurrentMessage() {
@@ -33,10 +33,10 @@ func showCurrentMessage() {
 		panic(err.Error())
 	}
 	current := gohm.CurrentMessage()
-        fullName := filepath.Join(dir, current)
-        content, err := ioutil.ReadFile(fullName)
-        if err != nil {
-                panic(err.Error())
-        }
-        os.Stdout.Write(content)
+	fullName := filepath.Join(dir, current)
+	content, err := ioutil.ReadFile(fullName)
+	if err != nil {
+		panic(err.Error())
+	}
+	os.Stdout.Write(content)
 }
