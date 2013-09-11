@@ -35,7 +35,7 @@ func CurrentFolder() (string, error) {
 }
 
 // The directory on the filesystem for the specified folder.
-func FolderDir(folder string) (string) {
+func FolderDir(folder string) string {
 	return filepath.Join(PATH, folder)
 }
 
