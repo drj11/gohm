@@ -116,32 +116,7 @@ func show(path string) {
 			fmt.Println("I'm refusing to handle", mediaType)
 			return
 		}
-		boundary := params["boundary"]
-		reader := multipart.NewReader(msg.Body, boundary)
-		partN := 0
-		for {
-			part, err := reader.NextPart()
-			if err == io.EOF {
-				break
-			}
-			if err != nil {
-				fmt.Fprintln(os.Stderr, err.Error())
-				continue
-			}
-			partTypeHeader := part.Header["Content-Type"][0]
-			log.Println("Part", partN, " type", partTypeHeader)
-			partType, _, err := mime.ParseMediaType(partTypeHeader)
-			if partType == "text/plain" {
-				partBody, err := ioutil.ReadAll(part)
-				if err != nil {
-					fmt.Fprintln(os.Stderr, err.Error())
-					return
-				}
-				os.Stdout.Write(partBody)
-				return
-			}
-			partN += 1
-		}
+		showMultipart(msg, params)
 	} else {
 		content, err := ioutil.ReadFile(path)
 		if err != nil {
@@ -149,4 +124,34 @@ func show(path string) {
 		}
 		os.Stdout.Write(content)
 	}
+}
+
+func showMultipart(message *mail.Message, params map[string]string) {
+	boundary := params["boundary"]
+	reader := multipart.NewReader(message.Body, boundary)
+	partN := 0
+	for {
+		part, err := reader.NextPart()
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			fmt.Fprintln(os.Stderr, err.Error())
+			continue
+		}
+		partTypeHeader := part.Header["Content-Type"][0]
+		log.Println("Part", partN, " type", partTypeHeader)
+		partType, _, err := mime.ParseMediaType(partTypeHeader)
+		if partType == "text/plain" {
+			partBody, err := ioutil.ReadAll(part)
+			if err != nil {
+				fmt.Fprintln(os.Stderr, err.Error())
+				return
+			}
+			os.Stdout.Write(partBody)
+			return
+		}
+		partN += 1
+	}
+	fmt.Fprintln(os.Stderr, "Didn't find any text/plain part")
 }
