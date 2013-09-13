@@ -3,8 +3,12 @@ package gohm
 import (
 	"errors"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"log"
+	"mime"
+	"mime/multipart"
+	"net/mail"
 	"os"
 	"path/filepath"
 )
@@ -90,9 +94,59 @@ func ShowCurrentMessage() {
 	}
 	current := CurrentMessage()
 	fullName := filepath.Join(dir, current)
-	content, err := ioutil.ReadFile(fullName)
+	show(fullName)
+}
+func show(path string) {
+	r, err := os.Open(path)
 	if err != nil {
 		panic(err.Error())
 	}
-	os.Stdout.Write(content)
+	msg, err := mail.ReadMessage(r)
+	if err != nil {
+		panic(err.Error())
+	}
+	contentType, isMime := msg.Header["Content-Type"]
+	if isMime {
+		mediaType, params, err := mime.ParseMediaType(contentType[0])
+		if err != nil {
+			fmt.Fprintln(os.Stderr, err.Error())
+			return
+		}
+		if mediaType != "multipart/alternative" {
+			fmt.Println("I'm refusing to handle", mediaType)
+			return
+		}
+		boundary := params["boundary"]
+		reader := multipart.NewReader(msg.Body, boundary)
+		partN := 0
+		for {
+			part, err := reader.NextPart()
+			if err == io.EOF {
+				break
+			}
+			if err != nil {
+				fmt.Fprintln(os.Stderr, err.Error())
+				continue
+			}
+			partTypeHeader := part.Header["Content-Type"][0]
+			log.Println("Part", partN, " type", partTypeHeader)
+			partType, _, err := mime.ParseMediaType(partTypeHeader)
+			if partType == "text/plain" {
+				partBody, err := ioutil.ReadAll(part)
+				if err != nil {
+					fmt.Fprintln(os.Stderr, err.Error())
+					return
+				}
+				os.Stdout.Write(partBody)
+				return
+			}
+			partN += 1
+		}
+	} else {
+		content, err := ioutil.ReadFile(path)
+		if err != nil {
+			panic(err.Error())
+		}
+		os.Stdout.Write(content)
+	}
 }
