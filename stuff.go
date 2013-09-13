@@ -143,15 +143,23 @@ func showMultipart(message *mail.Message, params map[string]string) {
 		log.Println("Part", partN, " type", partTypeHeader)
 		partType, _, err := mime.ParseMediaType(partTypeHeader)
 		if partType == "text/plain" {
-			partBody, err := ioutil.ReadAll(part)
-			if err != nil {
-				fmt.Fprintln(os.Stderr, err.Error())
-				return
-			}
-			os.Stdout.Write(partBody)
+			showTextPlain(message, part)
 			return
 		}
 		partN += 1
 	}
 	fmt.Fprintln(os.Stderr, "Didn't find any text/plain part")
+}
+
+func showTextPlain(message *mail.Message, part *multipart.Part) {
+	fmt.Fprintln(os.Stdout, "Subject:", message.Header["Subject"][0])
+	fmt.Fprintln(os.Stdout, "Date:", message.Header["Date"][0])
+	fmt.Fprintln(os.Stdout, "From:", message.Header["From"][0])
+	fmt.Fprintln(os.Stdout)
+	partBody, err := ioutil.ReadAll(part)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err.Error())
+		return
+	}
+	os.Stdout.Write(partBody)
 }
